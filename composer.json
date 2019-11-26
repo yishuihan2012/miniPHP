@@ -8,6 +8,6 @@
             "email": "1015571416@qq.com"
         }
     ],
-    "minimum-stability": "beta",
+    "minimum-stability": "stable",
     "require": {}
 }
