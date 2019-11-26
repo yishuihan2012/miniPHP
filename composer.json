@@ -1,0 +1,13 @@
+{
+    "name": "yishuihan/mini-php",
+    "description": "miniPHP",
+    "type": "library",
+    "authors": [
+        {
+            "name": "yishuihan2012",
+            "email": "1015571416@qq.com"
+        }
+    ],
+    "minimum-stability": "beta",
+    "require": {}
+}
