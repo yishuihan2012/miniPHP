@@ -1,56 +1,65 @@
 <?php
-namespace mini;
-define('MINI_VERSION', '1.0.0');
-define('MINI_START_TIME', microtime(true));
-define('MINI_START_MEM', memory_get_usage());
-define('EXT', '.php');
-define('DS', DIRECTORY_SEPARATOR);
-defined('MINI_PATH') or define('MINI_PATH', __DIR__ . DS);
-define('LIB_PATH', MINI_PATH . 'library' . DS);
-define('CORE_PATH', LIB_PATH . 'mini' . DS);
-define('TRAIT_PATH', LIB_PATH . 'traits' . DS);
-defined('APP_PATH') or define('APP_PATH', dirname($_SERVER['SCRIPT_FILENAME']) . DS);
-defined('ROOT_PATH') or define('ROOT_PATH', dirname(realpath(APP_PATH)) . DS);
-defined('EXTEND_PATH') or define('EXTEND_PATH', ROOT_PATH . 'extend' . DS);
-defined('VENDOR_PATH') or define('VENDOR_PATH', ROOT_PATH . 'vendor' . DS);
-defined('RUNTIME_PATH') or define('RUNTIME_PATH', ROOT_PATH . 'runtime' . DS);
-defined('LOG_PATH') or define('LOG_PATH', RUNTIME_PATH . 'log' . DS);
-defined('CACHE_PATH') or define('CACHE_PATH', RUNTIME_PATH . 'cache' . DS);
-defined('TEMP_PATH') or define('TEMP_PATH', RUNTIME_PATH . 'temp' . DS);
-defined('CONF_PATH') or define('CONF_PATH', APP_PATH); // 配置文件目录
-defined('CONF_EXT') or define('CONF_EXT', EXT); // 配置文件后缀
-defined('ENV_PREFIX') or define('ENV_PREFIX', 'PHP_'); // 环境变量的配置前缀
+if(!defined('APP_NAME')) die('APP_NAME NO DEFINED!');
+class Mini{
+	public static function run(){
+		//1.设置常量
+		self::_set_const();
+		//2.创建文件夹
+		self::_create_dir();
+		//3.载入框架必须文件
+		self::_load_file();
+		//4.执行应用类的run
+		application::run();
+	}
+	private static function _set_const(){
+		define('APP_PATH',  ROOT_PATH. '/app/');
+		//定义框架根路径
+		define('MINI_PATH',ROOT_PATH.'/miniPHP');
+		//定义扩展路径
+		define('EXTEND_PATH', ROOT_PATH . '/Extend');
+		//定义扩展里面的工具路径
+		define('LIB_PATH', MINI_PATH . '/library');
+		//定义框架Config路径
+		define('CONFIG_PATH', ROOT_PATH . '/config');
+		//定义框架Core路径
+		define('CORE_PATH', LIB_PATH . '/core');
+		//定义框架Function路径
+		define('FUNCTION_PATH', LIB_PATH . '/function');
+		//定义应用的配置路径
+		define('APP_CONFIG_PATH', APP_PATH .APP_NAME. '/config');
+		//定义应用的模板路径
+		define('APP_TPL_PATH', APP_PATH .APP_NAME. '/templete');
+		define('APP_PUBLIC_PATH', APP_TPL_PATH . '/public');
+		//定义应用的控制路径
+		define('APP_CONTROL_PATH', APP_PATH .APP_NAME. '/controller');
+		define('IS_POST', $_SERVER['REQUEST_METHOD'] == 'POST' ? true : false);
+		define('IS_AJAX',isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' ? true : false);
+	}
 
-// 环境常量
-define('IS_CLI', PHP_SAPI == 'cli' ? true : false);
-define('IS_WIN', strpos(PHP_OS, 'WIN') !== false);
+	/**
+	 * [_create_dir 创建应用文件夹]
+	 * @return [type] [description]
+	 */
+	private static function _create_dir(){
+		$dirArr = array(
+			APP_CONFIG_PATH,
+			APP_TPL_PATH,
+			APP_PUBLIC_PATH,
+			APP_CONTROL_PATH
+			);
+		foreach ($dirArr as $v) {
+			is_dir($v) || mkdir($v,0777,true);
+		}
+	}
 
-// 载入Loader类
-// require CORE_PATH . 'Loader.php';
-include CORE_PATH . 'mini.php';
-// 加载环境变量配置文件
-if (is_file(ROOT_PATH . '.env')) {
-    $env = parse_ini_file(ROOT_PATH . '.env', true);
-    var_dump($env);die;
-    foreach ($env as $key => $val) {
-        $name = ENV_PREFIX . strtoupper($key);
+	/**
+	 * [_load_file 加载框架必须文件]
+	 * @return [type] [description]
+	 */
+	private static function _load_file(){
+		require_once(FUNCTION_PATH . '/function.php');
+		require_once(CORE_PATH . '/application.php');
+	}
 
-        if (is_array($val)) {
-            foreach ($val as $k => $v) {
-                $item = $name . '_' . strtoupper($k);
-                putenv("$item=$v");
-            }
-        } else {
-            putenv("$name=$val");
-        }
-    }
 }
-// 注册自动加载
-// \mini\Loader::register();
-
-// 注册错误和异常处理机制
-// \mini\Error::register();
-
-// 加载惯例配置文件
-// \mini\Config::set(include MINI_PATH . 'convention' . EXT);
-run();
+Mini::run();
